@@ -1,0 +1,24 @@
+#!/bin/bash
+for file in "$@"
+do
+    # Solicitar la ruta de destino
+    destino=$(zenity --file-selection --directory --title="Selecciona el directorio de destino")
+    
+    if [ -n "$destino" ]; then
+        # Copiar el archivo conservando permisos y atributos (-p)
+        cp -p "$file" "$destino"
+        
+        # Cambiar el propietario del archivo copiado al usuario actual
+        chown $(whoami):$(whoami) "$destino/$(basename "$file")"
+        
+        # Dar control total al usuario actual (lectura, escritura y ejecución)
+        chmod u+rwx "$destino/$(basename "$file")"
+        
+        # Mostrar un mensaje de éxito
+        zenity --info --text="El archivo fue copiado a '$destino' con permisos y cambiado de propietario. Ahora tienes control total sobre él."
+    else
+        # Mostrar un mensaje si se cancela la operación
+        zenity --error --text="La copia fue cancelada."
+    fi
+done
+
